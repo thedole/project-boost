@@ -143,7 +143,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 96ee13ef355dc2f49b5d30d13011b07c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 9.08
+      value: 5.54
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 96ee13ef355dc2f49b5d30d13011b07c, type: 3}
       propertyPath: m_LocalPosition.z
@@ -333,7 +333,7 @@ AudioListener:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 451984238}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!124 &451984240
 Behaviour:
   m_ObjectHideFlags: 0
