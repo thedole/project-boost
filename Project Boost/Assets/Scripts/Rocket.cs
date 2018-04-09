@@ -1,4 +1,6 @@
-﻿using Extensions;
+﻿using Assets.Scripts;
+using Extensions;
+using System.Linq;
 using UnityEngine;
 
 public class Rocket : MonoBehaviour {
@@ -15,6 +17,8 @@ public class Rocket : MonoBehaviour {
     private Vector3 thrustVector;
     [SerializeField]
     float rotationThrust = 250f;
+    [SerializeField]
+    GameObject pieces;
 
     // Use this for initialization
     void Start () {
@@ -92,6 +96,26 @@ public class Rocket : MonoBehaviour {
         else if (rotating == Rotating.Left)
         {
             rotating = Rotating.None;
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        switch (collision.gameObject.tag)
+        {
+            case Tags.Friendly:
+                // Do Nothing
+                    break;
+            default:
+                var brokenRocket = Instantiate(pieces, transform.position, transform.rotation);
+                var parts = brokenRocket.GetComponentsInChildren<Rigidbody>();
+                Destroy(gameObject);
+                foreach (var part in parts)
+                {
+                    
+                    part.AddExplosionForce(50000f, part.transform.position, 20f);
+                }
+                break;
         }
     }
 

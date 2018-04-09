@@ -235,26 +235,12 @@ Prefab:
       propertyPath: m_RootOrder
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 54587827324299506, guid: ccf4257ff52dc2b4699edc3866d3541e,
+    - target: {fileID: 114246779429670730, guid: ccf4257ff52dc2b4699edc3866d3541e,
         type: 2}
-      propertyPath: m_Drag
-      value: 0.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 82050452114118400, guid: ccf4257ff52dc2b4699edc3866d3541e,
-        type: 2}
-      propertyPath: m_audioClip
+      propertyPath: pieces
       value: 
-      objectReference: {fileID: 8300000, guid: 1ed649904263acc47a30745f08e07f05, type: 3}
-    - target: {fileID: 82050452114118400, guid: ccf4257ff52dc2b4699edc3866d3541e,
+      objectReference: {fileID: 1904222316287824, guid: 2e1d3c82ccd53a348a8bd8ad422ac736,
         type: 2}
-      propertyPath: m_Volume
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 82050452114118400, guid: ccf4257ff52dc2b4699edc3866d3541e,
-        type: 2}
-      propertyPath: m_Pitch
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: ccf4257ff52dc2b4699edc3866d3541e, type: 2}
   m_IsPrefabParent: 0
@@ -480,6 +466,10 @@ Prefab:
     - target: {fileID: 4870797112557240, guid: f6670a9e345a68c48a5a9eed1f4141f0, type: 2}
       propertyPath: m_LocalScale.z
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1331445262084072, guid: f6670a9e345a68c48a5a9eed1f4141f0, type: 2}
+      propertyPath: m_TagString
+      value: Friendly
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: f6670a9e345a68c48a5a9eed1f4141f0, type: 2}
