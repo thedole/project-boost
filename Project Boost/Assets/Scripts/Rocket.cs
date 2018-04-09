@@ -5,14 +5,29 @@ public class Rocket : MonoBehaviour {
     private Rotating rotating;
     private Rigidbody rigidBody;
     private FadingAudioSource audioSource;
-    private static Vector3 thrustVector = new Vector3(0f, 5500f, 0f);
-    private const float rotationThrust = 300f;
+    [SerializeField]
+    private float mainThrust = 4500f;
+    private float mainThrustInternal;
+    public float MainThrust {
+        get { return thrustVector.y; }
+        set { thrustVector.y = value; }
+    }
+    private Vector3 thrustVector;
+    [SerializeField]
+    float rotationThrust = 250f;
 
     // Use this for initialization
     void Start () {
         rigidBody = GetComponent<Rigidbody>();
         audioSource = new FadingAudioSource(GetComponent<AudioSource>());
-	}
+        thrustVector = new Vector3(0f, 0f, 0f);
+        MainThrust = mainThrust;
+    }
+
+    void OnValidate()
+    {
+        MainThrust = mainThrust;
+    }
 
     private void FixedUpdate()
     {

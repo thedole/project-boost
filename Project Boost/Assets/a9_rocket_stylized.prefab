@@ -116,8 +116,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1495968212017082}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 5.54, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0.000000030065667, w: 1}
+  m_LocalPosition: {x: -25.6076, y: 12.525, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4267715146385354}
@@ -270,7 +270,7 @@ Rigidbody:
   m_GameObject: {fileID: 1495968212017082}
   serializedVersion: 2
   m_Mass: 100
-  m_Drag: 0.01
+  m_Drag: 0.3
   m_AngularDrag: 3
   m_UseGravity: 1
   m_IsKinematic: 0
@@ -322,10 +322,10 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 6b4a5ca16d81bef47a9f9ed2564b5cdf, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 1ed649904263acc47a30745f08e07f05, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.4
-  m_Pitch: 1.4
+  m_Volume: 0.045999918
+  m_Pitch: 1
   Loop: 0
   Mute: 0
   Spatialize: 0
@@ -421,3 +421,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 599c6619d667fc54bb7b7e336bdf3ab4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rotationThrust: 250
