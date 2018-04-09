@@ -3,17 +3,14 @@
 public class Rocket : MonoBehaviour {
     private Rotating rotating;
     private Rigidbody rigidBody;
-    private static Vector3 thrustVector = new Vector3(0f, 9000f, 0f);
-    private static Vector3 leftTorque = new Vector3(0f, 0f, 6000f);
-    private static Vector3 rightTorque = new Vector3(0f, 0f, -6000f);
+    private static Vector3 thrustVector = new Vector3(0f, 5500f, 0f);
+    private static Vector3 leftTorque = new Vector3(0f, 0f, 9000f);
+    private static Vector3 rightTorque = new Vector3(0f, 0f, -9000f);
 
 
     // Use this for initialization
     void Start () {
         rigidBody = GetComponent<Rigidbody>();
-        //rigidBody.constraints = RigidbodyConstraints.FreezePositionZ | 
-        //                        RigidbodyConstraints.FreezeRotationX | 
-        //                        RigidbodyConstraints.FreezeRotationY;
 	}
 	
 	// Update is called once per frame
