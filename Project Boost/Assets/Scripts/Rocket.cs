@@ -107,15 +107,22 @@ public class Rocket : MonoBehaviour {
                 // Do Nothing
                     break;
             default:
-                var brokenRocket = Instantiate(pieces, transform.position, transform.rotation);
-                var parts = brokenRocket.GetComponentsInChildren<Rigidbody>();
-                Destroy(gameObject);
-                foreach (var part in parts)
-                {
-                    
-                    part.AddExplosionForce(50000f, part.transform.position, 20f);
-                }
+                Explode(collision);
                 break;
+        }
+    }
+
+    private void Explode(Collision collision)
+    {
+        var brokenRocket = Instantiate(pieces, transform.position, transform.rotation);
+        var parts = brokenRocket.GetComponentsInChildren<Rigidbody>();
+        print("velocity" + collision.relativeVelocity);
+        print("impulse" + collision.impulse);
+        var explosionForce = collision.impulse.magnitude * 15;
+        Destroy(gameObject);
+        foreach (var part in parts)
+        {
+            part.AddExplosionForce(explosionForce, collision.contacts.First().point, 30f, 2f);
         }
     }
 
