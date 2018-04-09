@@ -1,31 +1,41 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Rocket : MonoBehaviour {
     private Rotating rotating;
-	// Use this for initialization
-	void Start () {
-		
+    private Rigidbody rigidBody;
+    private static Vector3 thrustVector = new Vector3(0f, 9000f, 0f);
+    private static Vector3 leftTorque = new Vector3(0f, 0f, 6000f);
+    private static Vector3 rightTorque = new Vector3(0f, 0f, -6000f);
+
+
+    // Use this for initialization
+    void Start () {
+        rigidBody = GetComponent<Rigidbody>();
+        rigidBody.constraints = RigidbodyConstraints.FreezePositionZ | 
+                                RigidbodyConstraints.FreezeRotationX | 
+                                RigidbodyConstraints.FreezeRotationY;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-        ProcessInput();
 	}
+
+    private void FixedUpdate()
+    {
+        ProcessInput();
+    }
 
     private void ProcessInput()
     {
         if (Input.GetKey(KeyCode.Space))
         {
-            print("Thrust");
+            rigidBody.AddRelativeForce(thrustVector);
         }
 
         if(Input.GetKey(KeyCode.A) && rotating != Rotating.Right)
         {
             rotating = Rotating.Left;
-            print("Rotate Left");
+            rigidBody.AddRelativeTorque(leftTorque);
         }
         else if (Input.GetKeyUp(KeyCode.A) && rotating == Rotating.Left) {
             rotating = Rotating.None;
@@ -34,7 +44,8 @@ public class Rocket : MonoBehaviour {
         if (Input.GetKey(KeyCode.D) && rotating != Rotating.Left)
         {
             rotating = Rotating.Right;
-            print("Rotate Right");
+            rigidBody.AddRelativeTorque(rightTorque);
+
         }
         else if (Input.GetKeyUp(KeyCode.D) && rotating == Rotating.Right)
         {
