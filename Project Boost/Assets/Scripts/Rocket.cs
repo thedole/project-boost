@@ -6,7 +6,7 @@ public class Rocket : MonoBehaviour {
     private Rigidbody rigidBody;
     private FadingAudioSource audioSource;
     private static Vector3 thrustVector = new Vector3(0f, 5500f, 0f);
-    private const float rotationFactor = 4f;
+    private const float rotationThrust = 300f;
 
     // Use this for initialization
     void Start () {
@@ -33,6 +33,7 @@ public class Rocket : MonoBehaviour {
     {
         if (Input.GetKey(KeyCode.Space))
         {
+            rigidBody.AddRelativeForce(Vector3.up);
             rigidBody.AddRelativeForce(thrustVector);
             if (!audioSource.IsPlaying || audioSource.FadingState == FadingState.FadingOut)
             {
@@ -47,16 +48,17 @@ public class Rocket : MonoBehaviour {
 
     private void Maneuver()
     {
-        RotateLeft();
-        RotateRight();
+        var rotationSpeed = rotationThrust * Time.deltaTime;
+        RotateLeft(rotationSpeed);
+        RotateRight(rotationSpeed);
     }
 
-    private void RotateRight()
+    private void RotateRight(float rotationSpeed)
     {
         if (Input.GetKey(KeyCode.D) && rotating != Rotating.Left)
         {
             rotating = Rotating.Right;
-            transform.Rotate(-Vector3.forward * rotationFactor);
+            transform.Rotate(-Vector3.forward * rotationSpeed);
 
         }
         else if (rotating == Rotating.Right)
@@ -65,12 +67,12 @@ public class Rocket : MonoBehaviour {
         }
     }
 
-    private void RotateLeft()
+    private void RotateLeft(float rotationSpeed)
     {
         if (Input.GetKey(KeyCode.A) && rotating != Rotating.Right)
         {
             rotating = Rotating.Left;
-            transform.Rotate(Vector3.forward * rotationFactor);
+            transform.Rotate(Vector3.forward * rotationSpeed);
         }
         else if (rotating == Rotating.Left)
         {
