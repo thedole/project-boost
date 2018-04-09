@@ -11,9 +11,9 @@ public class Rocket : MonoBehaviour {
     // Use this for initialization
     void Start () {
         rigidBody = GetComponent<Rigidbody>();
-        rigidBody.constraints = RigidbodyConstraints.FreezePositionZ | 
-                                RigidbodyConstraints.FreezeRotationX | 
-                                RigidbodyConstraints.FreezeRotationY;
+        //rigidBody.constraints = RigidbodyConstraints.FreezePositionZ | 
+        //                        RigidbodyConstraints.FreezeRotationX | 
+        //                        RigidbodyConstraints.FreezeRotationY;
 	}
 	
 	// Update is called once per frame
@@ -37,7 +37,7 @@ public class Rocket : MonoBehaviour {
             rotating = Rotating.Left;
             rigidBody.AddRelativeTorque(leftTorque);
         }
-        else if (Input.GetKeyUp(KeyCode.A) && rotating == Rotating.Left) {
+        else if (rotating == Rotating.Left) {
             rotating = Rotating.None;
         }
 
@@ -47,7 +47,7 @@ public class Rocket : MonoBehaviour {
             rigidBody.AddRelativeTorque(rightTorque);
 
         }
-        else if (Input.GetKeyUp(KeyCode.D) && rotating == Rotating.Right)
+        else if (rotating == Rotating.Right)
         {
             rotating = Rotating.None;
         }
