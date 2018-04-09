@@ -48,17 +48,17 @@ public class Rocket : MonoBehaviour {
 
     private void Maneuver()
     {
-        var rotationSpeed = rotationThrust * Time.deltaTime;
-        RotateLeft(rotationSpeed);
-        RotateRight(rotationSpeed);
+        var rotation = rotationThrust * Time.deltaTime;
+        RotateLeft(rotation);
+        RotateRight(rotation);
     }
 
-    private void RotateRight(float rotationSpeed)
+    private void RotateRight(float rotation)
     {
         if (Input.GetKey(KeyCode.D) && rotating != Rotating.Left)
         {
             rotating = Rotating.Right;
-            transform.Rotate(-Vector3.forward * rotationSpeed);
+            transform.Rotate(-Vector3.forward * rotation);
 
         }
         else if (rotating == Rotating.Right)
@@ -67,12 +67,12 @@ public class Rocket : MonoBehaviour {
         }
     }
 
-    private void RotateLeft(float rotationSpeed)
+    private void RotateLeft(float rotation)
     {
         if (Input.GetKey(KeyCode.A) && rotating != Rotating.Right)
         {
             rotating = Rotating.Left;
-            transform.Rotate(Vector3.forward * rotationSpeed);
+            transform.Rotate(Vector3.forward * rotation);
         }
         else if (rotating == Rotating.Left)
         {
