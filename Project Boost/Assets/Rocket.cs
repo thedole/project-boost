@@ -4,10 +4,7 @@ public class Rocket : MonoBehaviour {
     private Rotating rotating;
     private Rigidbody rigidBody;
     private static Vector3 thrustVector = new Vector3(0f, 5500f, 0f);
-    private static Vector3 leftTorque = new Vector3(0f, 0f, 9000f);
-    private static Vector3 rightTorque = new Vector3(0f, 0f, -9000f);
-
-
+    private const float rotationFactor = 4f;
     // Use this for initialization
     void Start () {
         rigidBody = GetComponent<Rigidbody>();
@@ -20,6 +17,10 @@ public class Rocket : MonoBehaviour {
     private void FixedUpdate()
     {
         ProcessInput();
+        var zRotation = transform.localRotation.eulerAngles.z;
+        var newRotation = new Quaternion();
+        newRotation.eulerAngles = new Vector3(0, 0, zRotation);
+        transform.localRotation = newRotation;
     }
 
     private void ProcessInput()
@@ -32,7 +33,7 @@ public class Rocket : MonoBehaviour {
         if(Input.GetKey(KeyCode.A) && rotating != Rotating.Right)
         {
             rotating = Rotating.Left;
-            rigidBody.AddRelativeTorque(leftTorque);
+            transform.Rotate(Vector3.forward * rotationFactor);
         }
         else if (rotating == Rotating.Left) {
             rotating = Rotating.None;
@@ -41,7 +42,7 @@ public class Rocket : MonoBehaviour {
         if (Input.GetKey(KeyCode.D) && rotating != Rotating.Left)
         {
             rotating = Rotating.Right;
-            rigidBody.AddRelativeTorque(rightTorque);
+            transform.Rotate(-Vector3.forward * rotationFactor);
 
         }
         else if (rotating == Rotating.Right)
