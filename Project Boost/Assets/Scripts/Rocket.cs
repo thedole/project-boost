@@ -1,7 +1,9 @@
 ﻿using Assets.Scripts;
 using Extensions;
+using System.Collections;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Rocket : MonoBehaviour {
     private Rotating rotating;
@@ -19,6 +21,8 @@ public class Rocket : MonoBehaviour {
     float rotationThrust = 250f;
     [SerializeField]
     GameObject pieces;
+    private int sceneIndex;
+    private bool hasCollided;
 
     // Use this for initialization
     void Start () {
@@ -26,6 +30,8 @@ public class Rocket : MonoBehaviour {
         audioSource = new FadingAudioSource(GetComponent<AudioSource>());
         thrustVector = new Vector3(0f, 0f, 0f);
         MainThrust = mainThrust;
+        sceneIndex = SceneManager.GetActiveScene().buildIndex;
+        hasCollided = false;
     }
 
     void OnValidate()
@@ -104,13 +110,24 @@ public class Rocket : MonoBehaviour {
         switch (collision.gameObject.tag)
         {
             case Tags.Friendly:
-            case Tags.Finish:
                 // Do Nothing
                     break;
+            case Tags.Finish:
+                SceneManager.LoadScene(sceneIndex + 1);
+                break;
             default:
+                if (hasCollided) break;
+
+                hasCollided = true;
                 Explode(collision);
+                StartCoroutine(RestartLevel());
                 break;
         }
+    }
+    private IEnumerator RestartLevel()
+    {
+        yield return new WaitForSeconds(3);
+        SceneManager.LoadScene(sceneIndex);
     }
 
     private void Explode(Collision collision)
@@ -118,7 +135,7 @@ public class Rocket : MonoBehaviour {
         var brokenRocket = Instantiate(pieces, transform.position, transform.rotation);
         var parts = brokenRocket.GetComponentsInChildren<Rigidbody>();
         var explosionForce = collision.impulse.magnitude * 15;
-        Destroy(gameObject);
+        gameObject.transform.position = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, - 2000f);
 
         foreach (var part in parts)
         {
