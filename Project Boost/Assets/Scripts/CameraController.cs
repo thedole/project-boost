@@ -28,9 +28,7 @@ public class CameraController : MonoBehaviour {
         }
 
         var playerScreenCoordinateY = Camera.main.WorldToScreenPoint(player.transform.position).y;
-        //print("screenY - " + playerScreenCoordinateY);
-        //print("diff - " + (Screen.height - playerScreenCoordinateY));
-        //print("screenYLimit - " + screenYLimit);
+       
         if (!tracking && Screen.height - playerScreenCoordinateY < screenYLimit)
         {
             tracking = true;

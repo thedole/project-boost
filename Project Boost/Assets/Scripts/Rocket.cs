@@ -104,6 +104,7 @@ public class Rocket : MonoBehaviour {
         switch (collision.gameObject.tag)
         {
             case Tags.Friendly:
+            case Tags.Finish:
                 // Do Nothing
                     break;
             default:
