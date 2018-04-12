@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts;
 using Extensions;
+using System;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
@@ -22,7 +23,7 @@ public class Rocket : MonoBehaviour {
     [SerializeField]
     GameObject pieces;
     private int sceneIndex;
-    private bool hasCollided;
+    private State state;
 
     // Use this for initialization
     void Start () {
@@ -31,7 +32,7 @@ public class Rocket : MonoBehaviour {
         thrustVector = new Vector3(0f, 0f, 0f);
         MainThrust = mainThrust;
         sceneIndex = SceneManager.GetActiveScene().buildIndex;
-        hasCollided = false;
+        state = State.Alive;
     }
 
     void OnValidate()
@@ -41,6 +42,11 @@ public class Rocket : MonoBehaviour {
 
     private void FixedUpdate()
     {
+        if (!(state == State.Alive))
+        {
+            return;
+        }
+
         FixRotation();
         Thrust();
         Maneuver();
@@ -113,21 +119,49 @@ public class Rocket : MonoBehaviour {
                 // Do Nothing
                     break;
             case Tags.Finish:
-                SceneManager.LoadScene(sceneIndex + 1);
+                Transition();
                 break;
             default:
-                if (hasCollided) break;
-
-                hasCollided = true;
-                Explode(collision);
-                StartCoroutine(RestartLevel());
+                Die(collision);
                 break;
         }
     }
+
+    private void Die(Collision collision)
+    {
+        if (!(state == State.Alive))
+        {
+            return;
+        }
+
+        state = State.Dying;
+        Explode(collision);
+        StartCoroutine(RestartLevel());
+    }
+
+    private void Transition()
+    {
+        var nextSceneIndex = sceneIndex + 1;
+        // This is the final level
+        if (SceneManager.sceneCountInBuildSettings - nextSceneIndex < 1)
+        {
+            return;
+        }
+        StartCoroutine(NextLevel());
+    }
+
     private IEnumerator RestartLevel()
     {
         yield return new WaitForSeconds(3);
         SceneManager.LoadScene(sceneIndex);
+    }
+
+    private IEnumerator NextLevel()
+    {
+        
+        state = State.Transitioning;
+        yield return new WaitForSeconds(3);
+        SceneManager.LoadScene(sceneIndex + 1);
     }
 
     private void Explode(Collision collision)
@@ -144,4 +178,5 @@ public class Rocket : MonoBehaviour {
     }
 
     enum Rotating { None, Left, Right };
+    enum State { Alive, Dying, Transitioning };
 }
