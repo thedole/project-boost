@@ -24,6 +24,10 @@ public class Rocket : MonoBehaviour {
     GameObject pieces;
     private int sceneIndex;
     private State state;
+    [SerializeField]
+    private float nextLevelDelay = 2;
+    [SerializeField]
+    private float dieDelay = 3;
 
     // Use this for initialization
     void Start () {
@@ -127,6 +131,24 @@ public class Rocket : MonoBehaviour {
         }
     }
 
+    private void Transition()
+    {
+        var nextSceneIndex = sceneIndex + 1;
+        // This is the final level
+        if (SceneManager.sceneCountInBuildSettings - nextSceneIndex < 1)
+        {
+            return;
+        }
+        state = State.Transitioning;
+        StartCoroutine(NextLevel());
+    }
+
+    private IEnumerator NextLevel()
+    {
+        yield return new WaitForSeconds(nextLevelDelay);
+        SceneManager.LoadScene(sceneIndex + 1);
+    }
+
     private void Die(Collision collision)
     {
         if (!(state == State.Alive))
@@ -137,31 +159,6 @@ public class Rocket : MonoBehaviour {
         state = State.Dying;
         Explode(collision);
         StartCoroutine(RestartLevel());
-    }
-
-    private void Transition()
-    {
-        var nextSceneIndex = sceneIndex + 1;
-        // This is the final level
-        if (SceneManager.sceneCountInBuildSettings - nextSceneIndex < 1)
-        {
-            return;
-        }
-        StartCoroutine(NextLevel());
-    }
-
-    private IEnumerator RestartLevel()
-    {
-        yield return new WaitForSeconds(3);
-        SceneManager.LoadScene(sceneIndex);
-    }
-
-    private IEnumerator NextLevel()
-    {
-        
-        state = State.Transitioning;
-        yield return new WaitForSeconds(3);
-        SceneManager.LoadScene(sceneIndex + 1);
     }
 
     private void Explode(Collision collision)
@@ -175,6 +172,12 @@ public class Rocket : MonoBehaviour {
         {
             part.AddExplosionForce(explosionForce, collision.contacts.First().point, 30f, 2f);
         }
+    }
+
+    private IEnumerator RestartLevel()
+    {
+        yield return new WaitForSeconds(dieDelay);
+        SceneManager.LoadScene(sceneIndex);
     }
 
     enum Rotating { None, Left, Right };
