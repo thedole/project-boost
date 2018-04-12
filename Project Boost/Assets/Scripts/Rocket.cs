@@ -117,6 +117,12 @@ public class Rocket : MonoBehaviour {
 
     private void OnCollisionEnter(Collision collision)
     {
+
+        if (!(state == State.Alive))
+        {
+            return;
+        }
+
         switch (collision.gameObject.tag)
         {
             case Tags.Friendly:
@@ -151,11 +157,6 @@ public class Rocket : MonoBehaviour {
 
     private void Die(Collision collision)
     {
-        if (!(state == State.Alive))
-        {
-            return;
-        }
-
         state = State.Dying;
         Explode(collision);
         StartCoroutine(RestartLevel());
