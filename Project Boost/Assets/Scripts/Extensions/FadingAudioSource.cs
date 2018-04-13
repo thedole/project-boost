@@ -47,6 +47,11 @@ namespace Extensions
 
         public void FadeOut()
         {
+            if (!IsPlaying)
+            {
+                return; 
+            }
+
             FadingState = FadingState.FadingOut;
             if (CurrentVolume > upperThresholdVolume)
             {
@@ -65,13 +70,43 @@ namespace Extensions
 
         public void Play()
         {
+            if (!ShouldPlay())
+            {
+                return;
+            }
+            
+            Original.Play();
+        }
+
+        public void PlayOneShot(AudioClip clip)
+        {
+            if (!ShouldPlay())
+            {
+                return;
+            }
+
+            PrePlaySetup();
+            Original.PlayOneShot(clip);
+        }
+
+        private void PrePlaySetup()
+        {
             if (IsPlaying)
             {
                 Original.Stop();
             }
             FadingState = FadingState.None;
             CurrentVolume = PlayVolume;
-            Original.Play();
+        }
+
+        private bool ShouldPlay()
+        {
+            return !IsPlaying || FadingState == FadingState.FadingOut;
+        }
+
+        public void Stop()
+        {
+            Original.Stop();
         }
     }
 }

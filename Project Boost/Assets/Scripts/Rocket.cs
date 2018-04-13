@@ -28,6 +28,10 @@ public class Rocket : MonoBehaviour {
     private float nextLevelDelay = 2;
     [SerializeField]
     private float dieDelay = 3;
+    [SerializeField]
+    AudioClip thrustClip;
+    [SerializeField]
+    AudioClip levelSuccessFanfareClip;
 
     // Use this for initialization
     void Start () {
@@ -52,8 +56,8 @@ public class Rocket : MonoBehaviour {
         }
 
         FixRotation();
-        Thrust();
-        Maneuver();
+        ProcessThrustInput();
+        ProcessManeuveringInput();
     }
 
     private void FixRotation()
@@ -64,24 +68,27 @@ public class Rocket : MonoBehaviour {
         transform.localRotation = newRotation;
     }
 
-    private void Thrust()
+    private void ProcessThrustInput()
     {
         if (Input.GetKey(KeyCode.Space))
         {
-            rigidBody.AddRelativeForce(Vector3.up);
-            rigidBody.AddRelativeForce(thrustVector);
-            if (!audioSource.IsPlaying || audioSource.FadingState == FadingState.FadingOut)
-            {
-                audioSource.Play();
-            }
+            ApplyThrust();
+            audioSource.PlayOneShot(thrustClip);
+            
         }
-        else if (audioSource.IsPlaying)
+        else
         {
             audioSource.FadeOut();
         }
     }
 
-    private void Maneuver()
+    private void ApplyThrust()
+    {
+        rigidBody.AddRelativeForce(Vector3.up);
+        rigidBody.AddRelativeForce(thrustVector);
+    }
+
+    private void ProcessManeuveringInput()
     {
         var rotation = rotationThrust * Time.deltaTime;
         RotateLeft(rotation);
@@ -129,7 +136,7 @@ public class Rocket : MonoBehaviour {
                 // Do Nothing
                     break;
             case Tags.Finish:
-                Transition();
+                TransitionToNextLevel();
                 break;
             default:
                 Die(collision);
@@ -137,7 +144,7 @@ public class Rocket : MonoBehaviour {
         }
     }
 
-    private void Transition()
+    private void TransitionToNextLevel()
     {
         var nextSceneIndex = sceneIndex + 1;
         // This is the final level
@@ -146,6 +153,7 @@ public class Rocket : MonoBehaviour {
             return;
         }
         state = State.Transitioning;
+        audioSource.PlayOneShot(levelSuccessFanfareClip);
         StartCoroutine(NextLevel());
     }
 
@@ -158,6 +166,7 @@ public class Rocket : MonoBehaviour {
     private void Die(Collision collision)
     {
         state = State.Dying;
+        audioSource.Stop();
         Explode(collision);
         StartCoroutine(RestartLevel());
     }
