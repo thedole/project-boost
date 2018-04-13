@@ -6,41 +6,58 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class Rocket : MonoBehaviour {
-    private Rotating rotating;
-    private Rigidbody rigidBody;
-    private FadingAudioSource audioSource;
+public class Rocket : MonoBehaviour
+{
+
     [SerializeField]
     private float mainThrust = 4500f;
-    private float mainThrustInternal;
-    public float MainThrust {
-        get { return thrustVector.y; }
-        set { thrustVector.y = value; }
-    }
-    private Vector3 thrustVector;
     [SerializeField]
     float rotationThrust = 250f;
     [SerializeField]
     GameObject pieces;
-    private int sceneIndex;
-    private State state;
     [SerializeField]
-    private float nextLevelDelay = 2;
+    private float nextLevelDelay = 1.5f;
     [SerializeField]
     private float dieDelay = 3;
     [SerializeField]
     AudioClip thrustClip;
     [SerializeField]
     AudioClip levelSuccessFanfareClip;
+    [SerializeField]
+    private ParticleSystem thrustParticles;
+    [SerializeField]
+    private ParticleSystem successParticles;
+    [SerializeField]
+    private ParticleSystem deathParticles;
+    private ParticleSystem particles;
 
+    public float MainThrust
+    {
+        get { return thrustVector.y; }
+        set { thrustVector.y = value; }
+    }
+
+    private Rotating rotating;
+    private Rigidbody rigidBody;
+    private FadingAudioSource audioSource;
+    private float mainThrustInternal;
+    private Vector3 thrustVector;
+    private int sceneIndex;
+    private State state;
+    private bool isThrusting;
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
         rigidBody = GetComponent<Rigidbody>();
         audioSource = new FadingAudioSource(GetComponent<AudioSource>());
         thrustVector = new Vector3(0f, 0f, 0f);
         MainThrust = mainThrust;
         sceneIndex = SceneManager.GetActiveScene().buildIndex;
         state = State.Alive;
+
+        thrustParticles = Instantiate(thrustParticles, transform.position, transform.rotation);
+        thrustParticles.transform.parent = transform;
+        thrustParticles.transform.localPosition = new Vector3(0, -3.6f, 0);
     }
 
     void OnValidate()
@@ -74,18 +91,49 @@ public class Rocket : MonoBehaviour {
         {
             ApplyThrust();
             audioSource.PlayOneShot(thrustClip);
-            
+
         }
         else
         {
-            audioSource.FadeOut();
+            StopApplyingThrust();
+        }
+    }
+
+    private void StopApplyingThrust()
+    {
+        audioSource.FadeOut();
+        isThrusting = false;
+        if (thrustParticles.isPlaying)
+        {
+            StartCoroutine(StopParticleSystem(thrustParticles));
         }
     }
 
     private void ApplyThrust()
     {
+        isThrusting = true;
+        PlayParticles(thrustParticles);
         rigidBody.AddRelativeForce(Vector3.up);
         rigidBody.AddRelativeForce(thrustVector);
+    }
+
+    private void PlayParticles(ParticleSystem particleSystem)
+    {
+        if (particleSystem.isPlaying)
+        {
+            return;
+        }
+        particleSystem.Play();
+    }
+
+    private IEnumerator StopParticleSystem(ParticleSystem system)
+    {
+        yield return new WaitForSeconds(0.2f);
+        if (!isThrusting)
+        {
+            system.Stop();
+            system.Clear();
+        }
     }
 
     private void ProcessManeuveringInput()
@@ -134,7 +182,7 @@ public class Rocket : MonoBehaviour {
         {
             case Tags.Friendly:
                 // Do Nothing
-                    break;
+                break;
             case Tags.Finish:
                 TransitionToNextLevel();
                 break;
@@ -176,7 +224,7 @@ public class Rocket : MonoBehaviour {
         var brokenRocket = Instantiate(pieces, transform.position, transform.rotation);
         var parts = brokenRocket.GetComponentsInChildren<Rigidbody>();
         var explosionForce = collision.impulse.magnitude * 15;
-        gameObject.transform.position = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, - 2000f);
+        gameObject.transform.position = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, -2000f);
 
         foreach (var part in parts)
         {
