@@ -58,6 +58,7 @@ public class Rocket : MonoBehaviour
         state = State.Alive;
 
         InitializeThrustParticles();
+        InitializeSuccessParticles();
     }
 
     private void InitializeThrustParticles()
@@ -65,6 +66,13 @@ public class Rocket : MonoBehaviour
         thrustParticles = Instantiate(thrustParticles, transform.position, transform.rotation);
         thrustParticles.transform.parent = transform;
         thrustParticles.transform.localPosition = new Vector3(0, -3.6f, 0);
+    }
+
+    private void InitializeSuccessParticles()
+    {
+        successParticles = Instantiate(successParticles, transform.position, transform.rotation);
+        successParticles.transform.parent = transform;
+        successParticles.transform.localPosition = Vector3.zero;
     }
 
     void OnValidate()
@@ -234,6 +242,7 @@ public class Rocket : MonoBehaviour
 
     private void TransitionToNextLevel()
     {
+        PlayParticles(successParticles);
         var nextSceneIndex = sceneIndex + 1;
         // This is the final level
         if (SceneManager.sceneCountInBuildSettings - nextSceneIndex < 1)
