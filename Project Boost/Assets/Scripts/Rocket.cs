@@ -45,6 +45,7 @@ public class Rocket : MonoBehaviour
     private int sceneIndex;
     private State state;
     private bool isThrusting;
+
     // Use this for initialization
     void Start()
     {
@@ -56,6 +57,11 @@ public class Rocket : MonoBehaviour
         sceneIndex = SceneManager.GetActiveScene().buildIndex;
         state = State.Alive;
 
+        InitializeThrustParticles();
+    }
+
+    private void InitializeThrustParticles()
+    {
         thrustParticles = Instantiate(thrustParticles, transform.position, transform.rotation);
         thrustParticles.transform.parent = transform;
         thrustParticles.transform.localPosition = new Vector3(0, -3.6f, 0);
@@ -73,6 +79,12 @@ public class Rocket : MonoBehaviour
 
     private void ProcessInput()
     {
+        ProcessThrustInput();
+        ProcessManeuverInput();
+    }
+
+    private void ProcessThrustInput()
+    {
         if (Input.GetKey(KeyCode.Space))
         {
             input.Thrust = true;
@@ -81,17 +93,16 @@ public class Rocket : MonoBehaviour
         {
             input.Thrust = false;
         }
+    }
 
-        if (Input.GetKey(KeyCode.D) && rotating != Rotating.Left)
-        {
-            input.Maneuver = RocketInput.ManeuverDirection.Right;
+    private void ProcessManeuverInput()
+    {
+        ProcessLeftRotationInput();
+        ProcessRigthRotationInput();
+    }
 
-        }
-        else if (input.Maneuver == RocketInput.ManeuverDirection.Right)
-        {
-            input.Maneuver = RocketInput.ManeuverDirection.None;
-        }
-
+    private void ProcessRigthRotationInput()
+    {
         if (Input.GetKey(KeyCode.A) && rotating != Rotating.Right)
         {
             input.Maneuver = RocketInput.ManeuverDirection.Left;
@@ -103,6 +114,19 @@ public class Rocket : MonoBehaviour
         }
     }
 
+    private void ProcessLeftRotationInput()
+    {
+        if (Input.GetKey(KeyCode.D) && rotating != Rotating.Left)
+        {
+            input.Maneuver = RocketInput.ManeuverDirection.Right;
+
+        }
+        else if (input.Maneuver == RocketInput.ManeuverDirection.Right)
+        {
+            input.Maneuver = RocketInput.ManeuverDirection.None;
+        }
+    }
+    
     private void FixedUpdate()
     {
         if (!(state == State.Alive))
@@ -111,7 +135,7 @@ public class Rocket : MonoBehaviour
         }
 
         FixRotation();
-        ProcessThrustInput();
+        HandleThrustInput();
         Maneuver();
     }
 
@@ -123,7 +147,7 @@ public class Rocket : MonoBehaviour
         transform.localRotation = newRotation;
     }
 
-    private void ProcessThrustInput()
+    private void HandleThrustInput()
     {
         if (input.Thrust)
         {
@@ -237,16 +261,9 @@ public class Rocket : MonoBehaviour
 
     private void Explode(Collision collision)
     {
-
-
-        
         //PlayParticles(deathParticles);
         var brokenRocket = Instantiate(pieces, transform.position, transform.rotation);
-        deathParticles = Instantiate(deathParticles, brokenRocket.transform.position, brokenRocket.transform.rotation);
-        deathParticles.transform.parent = brokenRocket.transform;
-        deathParticles.transform.localPosition = Vector3.zero;
-        deathParticles.Clear();
-        deathParticles.Play();
+        PlayDeathParticles(brokenRocket);
         var parts = brokenRocket.GetComponentsInChildren<Rigidbody>();
         var explosionForce = collision.impulse.magnitude * 15;
         gameObject.transform.position = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, -2000f);
@@ -255,6 +272,15 @@ public class Rocket : MonoBehaviour
         {
             part.AddExplosionForce(explosionForce, collision.contacts.First().point, 30f, 2f);
         }
+    }
+
+    private void PlayDeathParticles(GameObject brokenRocket)
+    {
+        deathParticles = Instantiate(deathParticles, brokenRocket.transform.position, brokenRocket.transform.rotation);
+        deathParticles.transform.parent = brokenRocket.transform;
+        deathParticles.transform.localPosition = Vector3.zero;
+        deathParticles.Clear();
+        deathParticles.Play();
     }
 
     private IEnumerator RestartLevel()
