@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 198771921530985916}
   - component: {fileID: 199843111103980618}
   m_Layer: 0
-  m_Name: Particle System
+  m_Name: Thrust Particles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

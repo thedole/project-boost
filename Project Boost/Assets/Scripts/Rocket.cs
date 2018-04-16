@@ -237,7 +237,16 @@ public class Rocket : MonoBehaviour
 
     private void Explode(Collision collision)
     {
+
+
+        
+        //PlayParticles(deathParticles);
         var brokenRocket = Instantiate(pieces, transform.position, transform.rotation);
+        deathParticles = Instantiate(deathParticles, brokenRocket.transform.position, brokenRocket.transform.rotation);
+        deathParticles.transform.parent = brokenRocket.transform;
+        deathParticles.transform.localPosition = Vector3.zero;
+        deathParticles.Clear();
+        deathParticles.Play();
         var parts = brokenRocket.GetComponentsInChildren<Rigidbody>();
         var explosionForce = collision.impulse.magnitude * 15;
         gameObject.transform.position = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, -2000f);
