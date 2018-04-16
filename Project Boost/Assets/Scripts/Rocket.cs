@@ -1,6 +1,5 @@
 ﻿using Assets.Scripts;
 using Extensions;
-using System;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
@@ -30,6 +29,7 @@ public class Rocket : MonoBehaviour
     [SerializeField]
     private ParticleSystem deathParticles;
     private ParticleSystem particles;
+    private RocketInput input;
 
     public float MainThrust
     {
@@ -49,6 +49,7 @@ public class Rocket : MonoBehaviour
     void Start()
     {
         rigidBody = GetComponent<Rigidbody>();
+        input = new RocketInput();
         audioSource = new FadingAudioSource(GetComponent<AudioSource>());
         thrustVector = new Vector3(0f, 0f, 0f);
         MainThrust = mainThrust;
@@ -65,6 +66,43 @@ public class Rocket : MonoBehaviour
         MainThrust = mainThrust;
     }
 
+    private void Update()
+    {
+        ProcessInput();
+    }
+
+    private void ProcessInput()
+    {
+        if (Input.GetKey(KeyCode.Space))
+        {
+            input.Thrust = true;
+        }
+        else
+        {
+            input.Thrust = false;
+        }
+
+        if (Input.GetKey(KeyCode.D) && rotating != Rotating.Left)
+        {
+            input.Maneuver = RocketInput.ManeuverDirection.Right;
+
+        }
+        else if (input.Maneuver == RocketInput.ManeuverDirection.Right)
+        {
+            input.Maneuver = RocketInput.ManeuverDirection.None;
+        }
+
+        if (Input.GetKey(KeyCode.A) && rotating != Rotating.Right)
+        {
+            input.Maneuver = RocketInput.ManeuverDirection.Left;
+
+        }
+        else if (input.Maneuver == RocketInput.ManeuverDirection.Left)
+        {
+            input.Maneuver = RocketInput.ManeuverDirection.None;
+        }
+    }
+
     private void FixedUpdate()
     {
         if (!(state == State.Alive))
@@ -74,7 +112,7 @@ public class Rocket : MonoBehaviour
 
         FixRotation();
         ProcessThrustInput();
-        ProcessManeuveringInput();
+        Maneuver();
     }
 
     private void FixRotation()
@@ -87,11 +125,10 @@ public class Rocket : MonoBehaviour
 
     private void ProcessThrustInput()
     {
-        if (Input.GetKey(KeyCode.Space))
+        if (input.Thrust)
         {
             ApplyThrust();
             audioSource.PlayOneShot(thrustClip);
-
         }
         else
         {
@@ -136,40 +173,19 @@ public class Rocket : MonoBehaviour
         }
     }
 
-    private void ProcessManeuveringInput()
+    private void Maneuver()
     {
         var rotation = rotationThrust * Time.deltaTime;
-        RotateLeft(rotation);
-        RotateRight(rotation);
-    }
+        var direction = input.Maneuver == RocketInput.ManeuverDirection.Left
+            ? Vector3.forward
+            : -Vector3.forward;
 
-    private void RotateRight(float rotation)
-    {
-        if (Input.GetKey(KeyCode.D) && rotating != Rotating.Left)
+        if (input.Maneuver != RocketInput.ManeuverDirection.None)
         {
-            rotating = Rotating.Right;
-            transform.Rotate(-Vector3.forward * rotation);
-
-        }
-        else if (rotating == Rotating.Right)
-        {
-            rotating = Rotating.None;
+            transform.Rotate(direction * rotation);
         }
     }
-
-    private void RotateLeft(float rotation)
-    {
-        if (Input.GetKey(KeyCode.A) && rotating != Rotating.Right)
-        {
-            rotating = Rotating.Left;
-            transform.Rotate(Vector3.forward * rotation);
-        }
-        else if (rotating == Rotating.Left)
-        {
-            rotating = Rotating.None;
-        }
-    }
-
+    
     private void OnCollisionEnter(Collision collision)
     {
 
