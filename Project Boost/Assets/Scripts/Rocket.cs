@@ -9,7 +9,7 @@ public class Rocket : MonoBehaviour
 {
 
     [SerializeField]
-    private float mainThrust = 4500f;
+    private float mainThrust = 375000f;
     [SerializeField]
     float rotationThrust = 250f;
     [SerializeField]
@@ -184,8 +184,7 @@ public class Rocket : MonoBehaviour
     {
         isThrusting = true;
         PlayParticles(thrustParticles);
-        rigidBody.AddRelativeForce(Vector3.up);
-        rigidBody.AddRelativeForce(thrustVector);
+        rigidBody.AddRelativeForce(thrustVector * Time.deltaTime);
     }
 
     private void PlayParticles(ParticleSystem particleSystem)
