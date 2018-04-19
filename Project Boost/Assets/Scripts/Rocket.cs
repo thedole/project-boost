@@ -28,7 +28,8 @@ public class Rocket : MonoBehaviour
     private ParticleSystem successParticles;
     [SerializeField]
     private ParticleSystem deathParticles;
-    private ParticleSystem particles;
+    
+
     private RocketInput input;
 
     public float MainThrust
@@ -83,6 +84,7 @@ public class Rocket : MonoBehaviour
     private void Update()
     {
         ProcessInput();
+
     }
 
     private void ProcessInput()
