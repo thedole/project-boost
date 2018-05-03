@@ -3,13 +3,12 @@
 public class Oscillator : MonoBehaviour {
     [SerializeField]
     private Vector3 movementVector;
-    [Range(0, 1)]
     [SerializeField]
-    private float movementFactor;
-    [SerializeField]
+    [Range(0.5f, 15)]
     private float period = 2f;
 
     private Vector3 startingPosition;
+    private float movementFactor;
     private float tau;
 
     // Use this for initialization
