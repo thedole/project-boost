@@ -1,13 +1,16 @@
 ﻿using Assets.Scripts;
 using Extensions;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class Rocket : MonoBehaviour
 {
-
+    [SerializeField]
+    private bool debugMode = false;
     [SerializeField]
     private float mainThrust = 375000f;
     [SerializeField]
@@ -28,7 +31,6 @@ public class Rocket : MonoBehaviour
     private ParticleSystem successParticles;
     [SerializeField]
     private ParticleSystem deathParticles;
-    
 
     private RocketInput input;
 
@@ -37,6 +39,8 @@ public class Rocket : MonoBehaviour
         get { return thrustVector.y; }
         set { thrustVector.y = value; }
     }
+    public bool DebugMode { get; set; }
+    public bool DetectCollisions { get; private set; }
 
     private Rotating rotating;
     private Rigidbody rigidBody;
@@ -46,6 +50,9 @@ public class Rocket : MonoBehaviour
     private int sceneIndex;
     private State state;
     private bool isThrusting;
+    private Canvas debugCanvas;
+    private Text debugModeText;
+    private Dictionary<DebugMessageType, DebugMessages> debugMessages;
 
     // Use this for initialization
     void Start()
@@ -57,9 +64,26 @@ public class Rocket : MonoBehaviour
         MainThrust = mainThrust;
         sceneIndex = SceneManager.GetActiveScene().buildIndex;
         state = State.Alive;
+        DetectCollisions = true;
 
+        InitializeDebugMessages();
         InitializeThrustParticles();
         InitializeSuccessParticles();
+    }
+
+    private void InitializeDebugMessages()
+    {
+        debugMessages = new Dictionary<DebugMessageType, DebugMessages>() {
+            { DebugMessageType.DebugMode, new DebugModeText() }
+        };
+        var textList = GameObject.FindObjectsOfType<Text>();
+        debugModeText = textList
+            .Where( t => t.name.Equals("debugModeText"))
+            .FirstOrDefault<Text>();
+        if (debugModeText != null && debugMode)
+        {
+            debugModeText.text = debugMessages[DebugMessageType.DebugMode]?.Text;
+        }
     }
 
     private void InitializeThrustParticles()
@@ -79,18 +103,34 @@ public class Rocket : MonoBehaviour
     void OnValidate()
     {
         MainThrust = mainThrust;
+        DebugMode = debugMode;
     }
 
     private void Update()
     {
         ProcessInput();
-
     }
 
     private void ProcessInput()
     {
+        if (DebugMode)
+        {
+            ProcessDebugInput();
+        }
         ProcessThrustInput();
         ProcessManeuverInput();
+    }
+
+    private void ProcessDebugInput()
+    {
+        if (Input.GetKey(KeyCode.L))
+        {
+            SkipLevel();
+        }
+        else if (Input.GetKey(KeyCode.C))
+        {
+            DetectCollisions = !DetectCollisions;
+        }
     }
 
     private void ProcessThrustInput()
@@ -136,7 +176,7 @@ public class Rocket : MonoBehaviour
             input.Maneuver = RocketInput.ManeuverDirection.None;
         }
     }
-    
+
     private void FixedUpdate()
     {
         if (!(state == State.Alive))
@@ -218,11 +258,11 @@ public class Rocket : MonoBehaviour
             transform.Rotate(direction * rotation);
         }
     }
-    
+
     private void OnCollisionEnter(Collision collision)
     {
 
-        if (!(state == State.Alive))
+        if (!DetectCollisions || !(state == State.Alive))
         {
             return;
         }
@@ -244,6 +284,7 @@ public class Rocket : MonoBehaviour
     private void TransitionToNextLevel()
     {
         PlayParticles(successParticles);
+
         var nextSceneIndex = sceneIndex + 1;
         // This is the final level
         if (SceneManager.sceneCountInBuildSettings - nextSceneIndex < 1)
@@ -251,14 +292,30 @@ public class Rocket : MonoBehaviour
             return;
         }
         state = State.Transitioning;
+
         audioSource.PlayOneShot(levelSuccessFanfareClip);
+
         StartCoroutine(NextLevel());
     }
 
     private IEnumerator NextLevel()
     {
         yield return new WaitForSeconds(nextLevelDelay);
+
         SceneManager.LoadScene(sceneIndex + 1);
+    }
+
+    private void SkipLevel()
+    {
+        var nextSceneIndex = sceneIndex + 1;
+        // This is the final level
+        if (SceneManager.sceneCountInBuildSettings - nextSceneIndex < 1)
+        {
+            return;
+        }
+        state = State.Transitioning;
+
+        SceneManager.LoadScene(nextSceneIndex);
     }
 
     private void Die(Collision collision)
