@@ -1,6 +1,6 @@
 ﻿namespace Assets.Scripts
 {
-    public class DebugModeText : DebugMessages
+    public class DebugModeText : DebugMessage
     {
         public new readonly DebugMessageType Type = DebugMessageType.DebugMode;
 

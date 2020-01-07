@@ -1,10 +1,11 @@
 ﻿namespace Assets.Scripts
 {
-    public abstract class DebugMessages
+    public abstract class DebugMessage
     {
         public readonly string Text;
         public readonly DebugMessageType Type;
-        protected DebugMessages(string text)
+
+        protected DebugMessage(string text)
         {
             Text = text;
         }

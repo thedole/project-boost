@@ -3,14 +3,13 @@ using Extensions;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Rocket : MonoBehaviour
 {
-    [SerializeField]
-    private bool debugMode = false;
     [SerializeField]
     private float mainThrust = 375000f;
     [SerializeField]
@@ -51,8 +50,8 @@ public class Rocket : MonoBehaviour
     private State state;
     private bool isThrusting;
     private Canvas debugCanvas;
-    private Text debugModeText;
-    private Dictionary<DebugMessageType, DebugMessages> debugMessages;
+    private Dictionary<DebugMessageType, DebugMessage> debugMessages;
+    private Dictionary<DebugMessageType, Text> debugMessageFields;
 
     // Use this for initialization
     void Start()
@@ -73,17 +72,48 @@ public class Rocket : MonoBehaviour
 
     private void InitializeDebugMessages()
     {
-        debugMessages = new Dictionary<DebugMessageType, DebugMessages>() {
-            { DebugMessageType.DebugMode, new DebugModeText() }
+        var definescriptingDefineSymbols = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone);
+        if (definescriptingDefineSymbols.Contains("debug"))
+        {
+            DebugMode = true;
+        }
+        debugMessageFields = new Dictionary<DebugMessageType, Text>();
+        debugMessages = new Dictionary<DebugMessageType, DebugMessage>() {
+            { DebugMessageType.DebugMode, new DebugModeText() },
+            { DebugMessageType.SkipLevel, new SkipLevelText() },
+            { DebugMessageType.CollisionsOff, new CollisionsOffText() }
         };
         var textList = GameObject.FindObjectsOfType<Text>();
-        debugModeText = textList
+
+        var debugModeText = textList
             .Where( t => t.name.Equals("debugModeText"))
             .FirstOrDefault<Text>();
-        if (debugModeText != null && debugMode)
+        if (debugModeText != null)
         {
-            debugModeText.text = debugMessages[DebugMessageType.DebugMode]?.Text;
+            debugMessageFields[DebugMessageType.DebugMode] = debugModeText;
+
         }
+
+        var skipLevelText = textList
+            .Where(t => t.name.Equals("skipLevelText"))
+            .FirstOrDefault<Text>();
+        if (skipLevelText != null)
+        {
+            debugMessageFields[DebugMessageType.SkipLevel] = skipLevelText;
+        }
+
+
+        var collisionsOffText = textList
+            .Where(t => t.name.Equals("collisionsOffText"))
+            .FirstOrDefault<Text>();
+        if (collisionsOffText != null)
+        {
+            debugMessageFields[DebugMessageType.CollisionsOff] = collisionsOffText;
+        }
+        debugMessageFields[DebugMessageType.DebugMode].text = debugMessages[DebugMessageType.DebugMode].Text;
+        debugMessageFields[DebugMessageType.SkipLevel].text = string.Empty;
+        debugMessageFields[DebugMessageType.CollisionsOff].text = string.Empty;
+
     }
 
     private void InitializeThrustParticles()
@@ -103,7 +133,6 @@ public class Rocket : MonoBehaviour
     void OnValidate()
     {
         MainThrust = mainThrust;
-        DebugMode = debugMode;
     }
 
     private void Update()
@@ -123,13 +152,22 @@ public class Rocket : MonoBehaviour
 
     private void ProcessDebugInput()
     {
-        if (Input.GetKey(KeyCode.L))
+        if (Input.GetKeyUp(KeyCode.L))
         {
+            debugMessageFields[DebugMessageType.SkipLevel].text = debugMessages[DebugMessageType.SkipLevel].Text;
             SkipLevel();
         }
-        else if (Input.GetKey(KeyCode.C))
+        else if (Input.GetKeyUp(KeyCode.C))
         {
             DetectCollisions = !DetectCollisions;
+            if (DetectCollisions)
+            {
+                debugMessageFields[DebugMessageType.CollisionsOff].text = string.Empty;
+            }
+            else
+            {
+                debugMessageFields[DebugMessageType.CollisionsOff].text = debugMessages[DebugMessageType.CollisionsOff].Text;
+            }
         }
     }
 
