@@ -40,7 +40,6 @@ public class Rocket : MonoBehaviour
         get { return thrustVector.y; }
         set { thrustVector.y = value; }
     }
-    public bool DebugMode { get; set; }
     public bool DetectCollisions { get; private set; }
 
     private Rotating rotating;
@@ -73,17 +72,6 @@ public class Rocket : MonoBehaviour
 
     private void SetDebugMode()
     {
-        var definescriptingDefineSymbols = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone);
-        var isDebug = Regex.IsMatch(definescriptingDefineSymbols, Regex.Escape("debug"), RegexOptions.IgnoreCase);
-        if (isDebug)
-        {
-            DebugMode = true;
-        }
-        SetupDebugGUI();
-    }
-
-    private void SetupDebugGUI()
-    {
         var mapping = new Dictionary<DebugMessageType, KeyValuePair<string, string>>(){
             { DebugMessageType.DebugMode, new KeyValuePair<string, string>("debugModeText", "Debug Mode") },
             { DebugMessageType.SkipLevel, new KeyValuePair<string, string>("skipLevelText", "Skip Level")},
@@ -98,7 +86,7 @@ public class Rocket : MonoBehaviour
     {
         foreach (var messageTypeMapping in messageMappings)
         {
-            if (messageTypeMapping.Key == DebugMessageType.DebugMode && DebugMode)
+            if (messageTypeMapping.Key == DebugMessageType.DebugMode && Debug.isDebugBuild)
             {
                 messageTypeMapping.Value.SetMessage();
             }
@@ -149,7 +137,7 @@ public class Rocket : MonoBehaviour
 
     private void ProcessInput()
     {
-        if (DebugMode)
+        if (Debug.isDebugBuild)
         {
             ProcessDebugInput();
         }
@@ -356,7 +344,7 @@ public class Rocket : MonoBehaviour
         // This is the final level
         if (SceneManager.sceneCountInBuildSettings - nextSceneIndex < 1)
         {
-            return;
+            nextSceneIndex = 0;
         }
         state = State.Transitioning;
 
