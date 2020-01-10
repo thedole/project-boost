@@ -1,8 +1,10 @@
 ﻿using Assets.Scripts;
 using Extensions;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -65,18 +67,13 @@ public class Rocket : MonoBehaviour
         state = State.Alive;
         DetectCollisions = true;
 
-        InitializeDebugMessages();
+        SetDebugMode();
         InitializeThrustParticles();
         InitializeSuccessParticles();
     }
 
     private void InitializeDebugMessages()
     {
-        var definescriptingDefineSymbols = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone);
-        if (definescriptingDefineSymbols.Contains("debug"))
-        {
-            DebugMode = true;
-        }
         debugMessageFields = new Dictionary<DebugMessageType, Text>();
         debugMessages = new Dictionary<DebugMessageType, DebugMessage>() {
             { DebugMessageType.DebugMode, new DebugModeText() },
@@ -86,7 +83,7 @@ public class Rocket : MonoBehaviour
         var textList = GameObject.FindObjectsOfType<Text>();
 
         var debugModeText = textList
-            .Where( t => t.name.Equals("debugModeText"))
+            .Where(t => t.name.Equals("debugModeText"))
             .FirstOrDefault<Text>();
         if (debugModeText != null)
         {
@@ -114,6 +111,17 @@ public class Rocket : MonoBehaviour
         debugMessageFields[DebugMessageType.SkipLevel].text = string.Empty;
         debugMessageFields[DebugMessageType.CollisionsOff].text = string.Empty;
 
+    }
+
+    private void SetDebugMode()
+    {
+        var definescriptingDefineSymbols = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone);
+        var isDebug = Regex.IsMatch(definescriptingDefineSymbols, Regex.Escape("debug"), RegexOptions.IgnoreCase);
+        if (isDebug)
+        {
+            DebugMode = true;
+            InitializeDebugMessages();
+        }
     }
 
     private void InitializeThrustParticles()
