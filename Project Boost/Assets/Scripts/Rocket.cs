@@ -52,8 +52,7 @@ public class Rocket : MonoBehaviour
     private State state;
     private bool isThrusting;
     private Canvas debugCanvas;
-    private Dictionary<DebugMessageType, DebugMessage> debugMessages;
-    private Dictionary<DebugMessageType, Text> debugMessageFields;
+    private Dictionary<DebugMessageType, DebugMessage> debugMessageMap;
 
     // Use this for initialization
     void Start()
@@ -72,47 +71,6 @@ public class Rocket : MonoBehaviour
         InitializeSuccessParticles();
     }
 
-    private void InitializeDebugMessages()
-    {
-        debugMessageFields = new Dictionary<DebugMessageType, Text>();
-        debugMessages = new Dictionary<DebugMessageType, DebugMessage>() {
-            { DebugMessageType.DebugMode, new DebugModeText() },
-            { DebugMessageType.SkipLevel, new SkipLevelText() },
-            { DebugMessageType.CollisionsOff, new CollisionsOffText() }
-        };
-        var textList = GameObject.FindObjectsOfType<Text>();
-
-        var debugModeText = textList
-            .Where(t => t.name.Equals("debugModeText"))
-            .FirstOrDefault<Text>();
-        if (debugModeText != null)
-        {
-            debugMessageFields[DebugMessageType.DebugMode] = debugModeText;
-
-        }
-
-        var skipLevelText = textList
-            .Where(t => t.name.Equals("skipLevelText"))
-            .FirstOrDefault<Text>();
-        if (skipLevelText != null)
-        {
-            debugMessageFields[DebugMessageType.SkipLevel] = skipLevelText;
-        }
-
-
-        var collisionsOffText = textList
-            .Where(t => t.name.Equals("collisionsOffText"))
-            .FirstOrDefault<Text>();
-        if (collisionsOffText != null)
-        {
-            debugMessageFields[DebugMessageType.CollisionsOff] = collisionsOffText;
-        }
-        debugMessageFields[DebugMessageType.DebugMode].text = debugMessages[DebugMessageType.DebugMode].Text;
-        debugMessageFields[DebugMessageType.SkipLevel].text = string.Empty;
-        debugMessageFields[DebugMessageType.CollisionsOff].text = string.Empty;
-
-    }
-
     private void SetDebugMode()
     {
         var definescriptingDefineSymbols = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone);
@@ -120,8 +78,49 @@ public class Rocket : MonoBehaviour
         if (isDebug)
         {
             DebugMode = true;
-            InitializeDebugMessages();
         }
+        SetupDebugGUI();
+    }
+
+    private void SetupDebugGUI()
+    {
+        var mapping = new Dictionary<DebugMessageType, KeyValuePair<string, string>>(){
+            { DebugMessageType.DebugMode, new KeyValuePair<string, string>("debugModeText", "Debug Mode") },
+            { DebugMessageType.SkipLevel, new KeyValuePair<string, string>("skipLevelText", "Skip Level")},
+            { DebugMessageType.CollisionsOff, new KeyValuePair<string, string>("collisionsOffText", "Collisions Off")}
+        };
+
+        debugMessageMap = MapToMessages(mapping);
+        InitializeDebugMessages(debugMessageMap);
+    }
+
+    private void InitializeDebugMessages(Dictionary<DebugMessageType, DebugMessage> messageMappings)
+    {
+        foreach (var messageTypeMapping in messageMappings)
+        {
+            if (messageTypeMapping.Key == DebugMessageType.DebugMode && DebugMode)
+            {
+                messageTypeMapping.Value.SetMessage();
+            }
+            else
+            {
+                messageTypeMapping.Value.ClearMessage();
+            }
+        }
+    }
+
+    private Dictionary<DebugMessageType, DebugMessage> MapToMessages(Dictionary<DebugMessageType, KeyValuePair<string, string>> mapping)
+    {
+        var textList = GameObject.FindObjectsOfType<Text>().ToList();
+        var fieldNames = new List<string> { "debugModeText", "skipLevelText", "collisionsOffText" };
+        var messages = mapping.Join(
+            textList,
+            f => f.Value.Key,
+            tn => tn.name,
+            (fn, tn) => new DebugMessage(fn.Key, tn, fn.Value.Value)
+        );
+
+        return messages.ToDictionary(m => m.Type);
     }
 
     private void InitializeThrustParticles()
@@ -162,7 +161,7 @@ public class Rocket : MonoBehaviour
     {
         if (Input.GetKeyUp(KeyCode.L))
         {
-            debugMessageFields[DebugMessageType.SkipLevel].text = debugMessages[DebugMessageType.SkipLevel].Text;
+            debugMessageMap[DebugMessageType.SkipLevel].SetMessage();
             SkipLevel();
         }
         else if (Input.GetKeyUp(KeyCode.C))
@@ -170,11 +169,11 @@ public class Rocket : MonoBehaviour
             DetectCollisions = !DetectCollisions;
             if (DetectCollisions)
             {
-                debugMessageFields[DebugMessageType.CollisionsOff].text = string.Empty;
+                debugMessageMap[DebugMessageType.CollisionsOff].ClearMessage();
             }
             else
             {
-                debugMessageFields[DebugMessageType.CollisionsOff].text = debugMessages[DebugMessageType.CollisionsOff].Text;
+                debugMessageMap[DebugMessageType.CollisionsOff].SetMessage();
             }
         }
     }
